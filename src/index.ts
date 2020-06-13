@@ -1,4 +1,5 @@
 import { fabric } from 'fabric';
+import './styles.css';
 
 console.log('fabric2',fabric)
 
