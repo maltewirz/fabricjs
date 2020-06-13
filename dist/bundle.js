@@ -162,7 +162,7 @@ eval("var g;\n\n// This works in non-strict mode\ng = (function() {\n\treturn th
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var fabric__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fabric */ \"./node_modules/fabric/dist/fabric.js\");\n/* harmony import */ var fabric__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fabric__WEBPACK_IMPORTED_MODULE_0__);\n\nconsole.log('fabric2', fabric__WEBPACK_IMPORTED_MODULE_0__[\"fabric\"]);\n\n\n//# sourceURL=webpack:///./src/index.ts?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var fabric__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fabric */ \"./node_modules/fabric/dist/fabric.js\");\n/* harmony import */ var fabric__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fabric__WEBPACK_IMPORTED_MODULE_0__);\n\nconsole.log('fabric2', fabric__WEBPACK_IMPORTED_MODULE_0__[\"fabric\"]);\nwindow.onload = function () {\n    // create a wrapper around native canvas element (with id=\"c\")\n    var canvas = new fabric__WEBPACK_IMPORTED_MODULE_0__[\"fabric\"].Canvas('c');\n    // create a rectangle object\n    var rect = new fabric__WEBPACK_IMPORTED_MODULE_0__[\"fabric\"].Rect({\n        left: 100,\n        top: 100,\n        fill: 'red',\n        width: 20,\n        height: 20\n    });\n    // \"add\" rectangle onto canvas\n    canvas.add(rect);\n};\n\n\n//# sourceURL=webpack:///./src/index.ts?");
 
 /***/ }),
 
