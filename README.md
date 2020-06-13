@@ -1,4 +1,4 @@
-# fabricjs-vue
+# test
 
 ## Project setup
 ```
