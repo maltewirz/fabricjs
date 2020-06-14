@@ -1,7 +1,7 @@
 <template>
   <div>
     <canvas id="c" width="250" height="250"></canvas>
-    <img src="../assets/cat.jpeg" id="my-image">
+    <img src="../assets/cat.jpeg" id="my-image" />
   </div>
 </template>
 
@@ -16,6 +16,9 @@ export default class HelloWorld extends Vue {
     const canvas = new fabric.Canvas("c", {
       backgroundColor: "rgb(255,250,220)"
     });
+
+    ////////// PART I //////////////
+    ////////////////////////////////
     // create a rectangle object
     const rect = new fabric.Rect({
       left: 100,
@@ -59,16 +62,60 @@ export default class HelloWorld extends Vue {
 
     circle.set("selectable", false); // make object unselectable
 
-    canvas.renderAll();
-
     const imgElement = document.getElementById("my-image") as HTMLImageElement;
     const imgInstance = new fabric.Image(imgElement, {
-      left: 100,
-      top: 100,
+      left: 200,
+      top: 200,
+      width: 30,
+      height: 30,
       angle: 30,
       opacity: 0.85
     });
     canvas.add(imgInstance);
+
+    ////////// PART 2 //////////////
+    ////////////////////////////////
+
+    canvas.on("mouse:down", function(options) {
+      const event = options.e as MouseEvent;
+      console.log(event.clientX, event.clientY);
+    });
+
+    canvas.on("mouse:down", function(options) {
+      if (options.target) {
+        console.log("an object was clicked! ", options.target.type);
+      }
+    });
+
+    const rect2 = new fabric.Rect({
+      left: 100,
+      top: 100,
+      fill: "red",
+      width: 20,
+      height: 20,
+      angle: 45
+    });
+    canvas.add(rect2);
+
+    rect2.on("selected", function() {
+      console.log("selected a rectangle");
+    });
+
+    const circle2 = new fabric.Circle({
+      left: 200,
+      top: 200,
+      radius: 75,
+      fill: "blue"
+    });
+    canvas.add(circle2);
+    circle2.on("selected", function() {
+      console.log("selected a circle");
+    });
+
+    ////////// PART III //////////////
+    ////////////////////////////////
+
+    canvas.renderAll();
   }
 }
 </script>
