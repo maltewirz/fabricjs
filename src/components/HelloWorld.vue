@@ -255,44 +255,51 @@ export default class HelloWorld extends Vue {
     ////////// POINTER ZOOM MOUSEWHEEL
 
     // Creating canvas
-    const bg = new fabric.Rect({ width: 990, height: 990, stroke: 'pink', strokeWidth: 10, fill: '' });
+    const bg = new fabric.Rect({ width: 990, height: 490, stroke: 'pink', strokeWidth: 10, fill: '' });
     bg.fill = new fabric.Pattern({ source: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAASElEQVQ4y2NkYGD4z0A6+M3AwMBKrGJWBgYGZiibEQ0zIInDaCaoelYyHYcX/GeitomjBo4aOGrgQBj4b7RwGFwGsjAwMDAAAD2/BjgezgsZAAAAAElFTkSuQmCC' },
     () => { bg.dirty = true; canvas.requestRenderAll() });
     canvas.add(bg);
+    const imageHeight = bg.height! + bg.strokeWidth!;
+    const imageWidth = bg.width! + bg.strokeWidth!;
 
     canvas.on("mouse:wheel", (opt) => {
       const event = opt.e as WheelEvent;
       const delta = event.deltaY;
       let zoom = canvas.getZoom();
       zoom *= 0.999 ** delta;
-      if (zoom > 20) { // if zoom bigger than 2, set to 2
-        zoom = 20;
+      if (zoom > 5) { // if zoom bigger than 2, set to 2
+        zoom = 5;
       }
-      if (zoom < 0.01) {
-        zoom = 0.01;
+      if (zoom < 0.2) {
+        zoom = 0.2;
       }
       canvas.zoomToPoint({x: event.offsetX, y: event.offsetY} as fabric.Point, zoom);
       opt.e.preventDefault();
       opt.e.stopPropagation();
 
       const vpt = canvas.viewportTransform as number[];
-      console.log(vpt[4], vpt[5], zoom, canvas);
+      console.log(vpt[4], vpt[5], zoom);
+      console.warn((zoom < canvas.getHeight() / imageHeight)
+        , (zoom < canvas.getWidth() / imageWidth))
 
-      if (zoom < 400 / 1000) { // when zooming out below 0.4, the canvas shrinks symetrically 
-        (canvas.viewportTransform as number[])[4] = 200 - 1000 * zoom / 2;
-        (canvas.viewportTransform as number[])[5] = 200 - 1000 * zoom / 2;
-      } else {
+      if ((zoom < canvas.getHeight() / imageHeight
+        || (zoom < canvas.getWidth() / imageWidth)
+      )) { // when zooming out below canvas height divided by image height
+        (canvas.viewportTransform as number[])[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
+        (canvas.viewportTransform as number[])[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2;
+      } else { // this avoid going out of the borders
         if (vpt[4] >= 0) {
           (canvas.viewportTransform as number[])[4] = 0;
-        } else if (vpt[4] < canvas.getWidth() - 1000 * zoom) {
-          (canvas.viewportTransform as number[])[4] = canvas.getWidth() - 1000 * zoom;
+        } else if (vpt[4] < canvas.getWidth() - imageWidth * zoom) {
+          (canvas.viewportTransform as number[])[4] = canvas.getWidth() - imageWidth * zoom;
         }
         if (vpt[5] >= 0) {
           (canvas.viewportTransform as number[])[5] = 0;
-        } else if (vpt[5] < canvas.getHeight() - 1000 * zoom) {
-          (canvas.viewportTransform as number[])[5] = canvas.getHeight() - 1000 * zoom;
+        } else if (vpt[5] < canvas.getHeight() - imageHeight * zoom) {
+          (canvas.viewportTransform as number[])[5] = canvas.getHeight() - imageHeight * zoom;
         }
       }
+      
       
     });
 
