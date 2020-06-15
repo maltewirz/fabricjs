@@ -2,6 +2,7 @@
   <div>
     <canvas id="c" width="400" height="400"></canvas>
     <img src="../assets/cat.jpeg" id="my-image" style="display: none" />
+    <p>Move mouswheel to zoom in and out. Hold <b>alt</b> key to move canvas when zoomed in.</p>
   </div>
 </template>
 
@@ -257,7 +258,7 @@ export default class HelloWorld extends Vue {
     // Creating canvas
     const bg = new fabric.Rect({ width: 990, height: 490, stroke: 'pink', strokeWidth: 10, fill: '' });
     bg.fill = new fabric.Pattern({ source: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAASElEQVQ4y2NkYGD4z0A6+M3AwMBKrGJWBgYGZiibEQ0zIInDaCaoelYyHYcX/GeitomjBo4aOGrgQBj4b7RwGFwGsjAwMDAAAD2/BjgezgsZAAAAAElFTkSuQmCC' },
-    () => { bg.dirty = true; canvas.requestRenderAll() });
+    () => { bg.dirty = true; canvas.requestRenderAll(); bg.selectable= false });
     canvas.add(bg);
     const imageHeight = bg.height! + bg.strokeWidth!;
     const imageWidth = bg.width! + bg.strokeWidth!;
@@ -278,25 +279,21 @@ export default class HelloWorld extends Vue {
       opt.e.stopPropagation();
 
       const vpt = canvas.viewportTransform as number[];
-      console.log(vpt[4], vpt[5], zoom);
-      console.warn((zoom < canvas.getHeight() / imageHeight)
-        , (zoom < canvas.getWidth() / imageWidth))
-
       if ((zoom < canvas.getHeight() / imageHeight
         || (zoom < canvas.getWidth() / imageWidth)
       )) { // when zooming out below canvas height divided by image height
-        (canvas.viewportTransform as number[])[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
-        (canvas.viewportTransform as number[])[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2;
+        vpt[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
+        vpt[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2;
       } else { // this avoid going out of the borders
         if (vpt[4] >= 0) {
-          (canvas.viewportTransform as number[])[4] = 0;
+          vpt[4] = 0;
         } else if (vpt[4] < canvas.getWidth() - imageWidth * zoom) {
-          (canvas.viewportTransform as number[])[4] = canvas.getWidth() - imageWidth * zoom;
+          vpt[4] = canvas.getWidth() - imageWidth * zoom;
         }
         if (vpt[5] >= 0) {
-          (canvas.viewportTransform as number[])[5] = 0;
+          vpt[5] = 0;
         } else if (vpt[5] < canvas.getHeight() - imageHeight * zoom) {
-          (canvas.viewportTransform as number[])[5] = canvas.getHeight() - imageHeight * zoom;
+          vpt[5] = canvas.getHeight() - imageHeight * zoom;
         }
       }
       
@@ -317,13 +314,31 @@ export default class HelloWorld extends Vue {
     canvas.on("mouse:move", (opt) => {
       if (this.isDragging) {
         const event = opt.e as MouseEvent;
-        if (canvas.viewportTransform) {
-          canvas.viewportTransform[4] += event.clientX - this.lastPosX;
-          canvas.viewportTransform[5] += event.clientY - this.lastPosY;
-          canvas.requestRenderAll();
-          this.lastPosX = event.clientX;
-          this.lastPosY = event.clientY;
+        const zoom = canvas.getZoom();
+        const vpt = canvas.viewportTransform as number[];
+
+        if ((zoom < canvas.getHeight() / imageHeight
+          || (zoom < canvas.getWidth() / imageWidth)
+        )) { // when zooming out below canvas height symetrically
+          vpt[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
+          vpt[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2;
+        } else { // blocking movement beyond borders        
+          vpt[4] += event.clientX - this.lastPosX;
+          vpt[5] += event.clientY - this.lastPosY;
+          if (vpt[4] >= 0) {            
+            vpt[4] = 0;
+          } else if (vpt[4] < canvas.getWidth() - imageWidth * zoom) {
+            vpt[4] = canvas.getWidth() - imageWidth * zoom;
+          }
+          if (vpt[5] >= 0) {
+            vpt[5] = 0;
+          } else if (vpt[5] < canvas.getHeight() - imageHeight * zoom) {
+            vpt[5] = canvas.getHeight() - imageHeight * zoom;
+          }
         }
+        canvas.requestRenderAll();
+        this.lastPosX = event.clientX;
+        this.lastPosY = event.clientY;
       }
     });
 
