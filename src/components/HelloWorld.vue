@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas id="c" width="450" height="450"></canvas>
+    <canvas id="c" width="400" height="400"></canvas>
     <img src="../assets/cat.jpeg" id="my-image" style="display: none" />
   </div>
 </template>
@@ -28,17 +28,17 @@ export default class HelloWorld extends Vue {
     ////////// PART I //////////////
     ////////////////////////////////
     // create a rectangle object
-    const rect = new fabric.Rect({
-      left: 100,
-      top: 100,
-      fill: "red",
-      width: 20,
-      height: 20,
-      angle: 45,
-    });
+    // const rect = new fabric.Rect({
+    //   left: 100,
+    //   top: 100,
+    //   fill: "red",
+    //   width: 20,
+    //   height: 20,
+    //   angle: 45,
+    // });
 
     // "add" rectangle onto canvas
-    canvas.add(rect);
+    // canvas.add(rect);
 
     // // moving rec to another location using setters
     // rect.set({ left: 20, top: 100 });
@@ -253,15 +253,53 @@ export default class HelloWorld extends Vue {
     // });
 
     ////////// POINTER ZOOM MOUSEWHEEL
+
+    // Creating canvas
+    const bg = new fabric.Rect({ width: 990, height: 990, stroke: 'pink', strokeWidth: 10, fill: '' });
+    bg.fill = new fabric.Pattern({ source: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAASElEQVQ4y2NkYGD4z0A6+M3AwMBKrGJWBgYGZiibEQ0zIInDaCaoelYyHYcX/GeitomjBo4aOGrgQBj4b7RwGFwGsjAwMDAAAD2/BjgezgsZAAAAAElFTkSuQmCC' },
+    () => { bg.dirty = true; canvas.requestRenderAll() });
+    canvas.add(bg);
+
     canvas.on("mouse:wheel", (opt) => {
       const event = opt.e as WheelEvent;
       const delta = event.deltaY;
+      let zoom = canvas.getZoom();
+      zoom *= 0.999 ** delta;
+      if (zoom > 20) { // if zoom bigger than 2, set to 2
+        zoom = 20;
+      }
+      if (zoom < 0.01) {
+        zoom = 0.01;
+      }
+      canvas.zoomToPoint({x: event.offsetX, y: event.offsetY} as fabric.Point, zoom);
+      opt.e.preventDefault();
+      opt.e.stopPropagation();
+
+      const vpt = canvas.viewportTransform as number[];
+      console.log(vpt[4], vpt[5], zoom, canvas);
+
+      if (zoom < 400 / 1000) { // when zooming out below 0.4, the canvas shrinks symetrically 
+        (canvas.viewportTransform as number[])[4] = 200 - 1000 * zoom / 2;
+        (canvas.viewportTransform as number[])[5] = 200 - 1000 * zoom / 2;
+      } else {
+        if (vpt[4] >= 0) {
+          (canvas.viewportTransform as number[])[4] = 0;
+        } else if (vpt[4] < canvas.getWidth() - 1000 * zoom) {
+          (canvas.viewportTransform as number[])[4] = canvas.getWidth() - 1000 * zoom;
+        }
+        if (vpt[5] >= 0) {
+          (canvas.viewportTransform as number[])[5] = 0;
+        } else if (vpt[5] < canvas.getHeight() - 1000 * zoom) {
+          (canvas.viewportTransform as number[])[5] = canvas.getHeight() - 1000 * zoom;
+        }
+      }
+      
     });
 
+    //// DRAGGING CANVAS
     canvas.on("mouse:down", (opt) => {
       const event = opt.e as MouseEvent;
       if (event.altKey === true) {
-        console.log("drag1", event);
         this.isDragging = true;
         this.selection = false;
         this.lastPosX = event.clientX;
