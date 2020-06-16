@@ -277,23 +277,28 @@ export default class HelloWorld extends Vue {
       canvas.zoomToPoint({x: event.offsetX, y: event.offsetY} as fabric.Point, zoom);
       opt.e.preventDefault();
       opt.e.stopPropagation();
-
       const vpt = canvas.viewportTransform as number[];
-      if ((zoom < canvas.getHeight() / imageHeight
-        || (zoom < canvas.getWidth() / imageWidth)
-      )) { // when zooming out below canvas height divided by image height
-        vpt[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
+
+      // managing symetric y-axis (heigth)
+      if ((zoom < canvas.getHeight() / imageHeight)) {
+        console.log('hi')
         vpt[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2;
+      } else { // this avoid going out of the borders
+        if (vpt[5] >= 0) {
+          vpt[5] = 0;
+        } else if (vpt[5] < canvas.getHeight() - imageHeight * zoom) {
+          vpt[5] = canvas.getHeight() - imageHeight * zoom;
+        }
+      }
+
+      // managing symetric x-axis (width)
+      if ((zoom < canvas.getWidth() / imageWidth)) {
+        vpt[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
       } else { // this avoid going out of the borders
         if (vpt[4] >= 0) {
           vpt[4] = 0;
         } else if (vpt[4] < canvas.getWidth() - imageWidth * zoom) {
           vpt[4] = canvas.getWidth() - imageWidth * zoom;
-        }
-        if (vpt[5] >= 0) {
-          vpt[5] = 0;
-        } else if (vpt[5] < canvas.getHeight() - imageHeight * zoom) {
-          vpt[5] = canvas.getHeight() - imageHeight * zoom;
         }
       }
       
