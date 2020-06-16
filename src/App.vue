@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <HelloWorld />
+    <FabricJSDemo />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import HelloWorld from "./components/HelloWorld.vue";
+import FabricJSDemo from "./components/FabricJSDemo.vue";
 
 @Component({
   components: {
-    HelloWorld
+    FabricJSDemo
   }
 })
 export default class App extends Vue {}
