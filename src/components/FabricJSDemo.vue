@@ -256,7 +256,7 @@ export default class HelloWorld extends Vue {
     ////////// POINTER ZOOM MOUSEWHEEL
 
     // Creating canvas
-    const bg = new fabric.Rect({ width: 990, height: 490, stroke: 'pink', strokeWidth: 10, fill: '' });
+    const bg = new fabric.Rect({ width: 490, height: 990, stroke: 'pink', strokeWidth: 10, fill: '' });
     bg.fill = new fabric.Pattern({ source: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAASElEQVQ4y2NkYGD4z0A6+M3AwMBKrGJWBgYGZiibEQ0zIInDaCaoelYyHYcX/GeitomjBo4aOGrgQBj4b7RwGFwGsjAwMDAAAD2/BjgezgsZAAAAAElFTkSuQmCC' },
     () => { bg.dirty = true; canvas.requestRenderAll(); bg.selectable= false });
     canvas.add(bg);
@@ -279,11 +279,10 @@ export default class HelloWorld extends Vue {
       opt.e.stopPropagation();
       const vpt = canvas.viewportTransform as number[];
 
-      // managing symetric y-axis (heigth)
+      // managing y-axis (heigth)
       if ((zoom < canvas.getHeight() / imageHeight)) {
-        console.log('hi')
-        vpt[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2;
-      } else { // this avoid going out of the borders
+        vpt[5] = (canvas.getHeight()/2) - imageHeight * zoom / 2; // symetric when out of bounds
+      } else { // when zoomed in, avoid going out of bounds
         if (vpt[5] >= 0) {
           vpt[5] = 0;
         } else if (vpt[5] < canvas.getHeight() - imageHeight * zoom) {
@@ -293,8 +292,8 @@ export default class HelloWorld extends Vue {
 
       // managing symetric x-axis (width)
       if ((zoom < canvas.getWidth() / imageWidth)) {
-        vpt[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2;
-      } else { // this avoid going out of the borders
+        vpt[4] = (canvas.getWidth()/2) - imageWidth * zoom / 2; // symetric when out of bounds
+      } else { // when zoomed in, avoid going out of bounds
         if (vpt[4] >= 0) {
           vpt[4] = 0;
         } else if (vpt[4] < canvas.getWidth() - imageWidth * zoom) {
